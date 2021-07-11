@@ -71,14 +71,11 @@ class TextRank4Keyword():
         for word1, word2 in token_pairs:
             i, j = vocab[word1], vocab[word2]
             g[i][j] = 1
-            
         # Get Symmeric matrix
         g = self.symmetrize(g)
-        
         # Normalize matrix by column
         norm = np.sum(g, axis=0)
         g_norm = np.divide(g, norm, where=norm!=0) # this is ignore the 0 element in norm
-        
         return g_norm
 
     
@@ -97,28 +94,20 @@ class TextRank4Keyword():
                 candidate_pos=['NOUN', 'PROPN'], 
                 window_size=4, lower=False, stopwords=list()):
         """Main function to analyze text"""
-        
         # Set stop words
         self.set_stopwords(stopwords)
-        
         # Pare text by spaCy
         doc = nlp(text)
-        
         # Filter sentences
         sentences = self.sentence_segment(doc, candidate_pos, lower) # list of list of words
-        
         # Build vocabulary
         vocab = self.get_vocab(sentences)
-        
         # Get token_pairs from windows
         token_pairs = self.get_token_pairs(window_size, sentences)
-        
         # Get normalized matrix
         g = self.get_matrix(vocab, token_pairs)
-        
         # Initionlization for weight(pagerank value)
         pr = np.array([1] * len(vocab))
-        
         # Iteration
         previous_pr = 0
         for epoch in range(self.steps):
@@ -127,10 +116,8 @@ class TextRank4Keyword():
                 break
             else:
                 previous_pr = sum(pr)
-
         # Get weight for each node
         node_weight = dict()
         for word, index in vocab.items():
             node_weight[word] = pr[index]
-        
         self.node_weight = node_weight
